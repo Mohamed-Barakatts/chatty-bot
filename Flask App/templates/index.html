@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Chatty Bot</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../static/ai.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url('{{ url_for('static', filename='background3.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            font-size: 4em;
+            margin: 50px 0;
+            color: aqua;
+        }
+        #chatbox {
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+            margin-top: 50px;
+            background-color: rgba(15, 60, 78, 0.6); /* Slightly transparent background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(226, 216, 216, 0.9);
+            display: block;
+            backdrop-filter: blur(10px); /* Blurs the content behind the chatbox */
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+        }
+
+        #textInput {
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+            background-color: rgb(38, 47, 38);
+            font-family: monospace;
+            font-size: 17px;
+            padding: 20px;
+            display: block;
+            margin-top: 10px;
+            color: antiquewhite;
+        }
+
+        .userText, .botText {
+            font-family: monospace;
+            font-size: 20px;
+            margin-bottom: 10px;
+            display: inline-block; /* Makes the box shrink or grow based on content */
+            padding: 10px;
+            border-radius: 25px;
+            display: block; /* Ensures each text block starts on a new line */
+        }
+
+        .userText {
+            color: white;
+            text-align: left;
+            background-color: #808080;
+            margin-left: auto;
+            margin-right: 0; /* Align to the right */
+            max-width: 30%; /* Limits the width to 60% of the container */
+            min-width: 35px; /* Sets a minimum width to avoid boxes becoming too small */
+            word-wrap: break-word; /* Ensures text wraps within the box if it gets too long */
+        }
+
+        .botText {
+            color: white;
+            text-align: left;
+            background-color: #3f6cf3;
+            margin-left: 0; /* Align to the left */
+            margin-right: auto;
+            max-width: 60%; /* Limits the width to 60% of the container */
+            min-width: 30px; /* Sets a minimum width to avoid boxes becoming too small */
+            word-wrap: break-word; /* Ensures text wraps within the box if it gets too long */
+        }
+
+    </style>
+</head>
+<body>
+    <center>
+          <h1>
+            <img
+              src="../static/ai.png"
+              alt="Chatty"
+              style="width:60px;height:60px;"
+            />Chatty AI
+          </h1>
+    </center>
+    <div id="chatbox"></div>
+    <div id="userInput">
+        <input id="textInput" type="text" name="msg" placeholder="Type your message here, and then click enter ...">
+    </div>
+
+    <script>
+        function getBotResponse() {
+            var rawText = $("#textInput").val();
+            var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
+            $("#textInput").val("");
+            $("#chatbox").append(userHtml);
+            document.getElementById("userInput").scrollIntoView({ block: "start", behavior: "smooth" });
+
+            $.ajax({
+                url: '/handle_message',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: rawText }),
+                success: function(data) {
+                    var botHtml = '<p class="botText"><span>' + data.response + '</span></p>';
+                    $("#chatbox").append(botHtml);
+                    document.getElementById("userInput").scrollIntoView({ block: "start", behavior: "smooth" });
+                }
+            });
+        }
+
+        $("#textInput").keypress(function(e) {
+            if (e.which == 13) {
+                getBotResponse();
+            }
+        });
+    </script>
+</body>
+</html>
